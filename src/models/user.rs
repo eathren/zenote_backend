@@ -3,11 +3,10 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
 #[derive(Serialize, Deserialize)]
-pub struct Graph {
+pub struct User {
     pub id: Uuid,
-    pub name: String,
+    pub username: String,
+    pub email: String,
     pub date_created: DateTime<Utc>,
     pub date_updated: DateTime<Utc>,
-    pub deleted: bool,
-    pub owner_id: Uuid,
 }

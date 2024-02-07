@@ -1,11 +1,16 @@
 use axum::{
-    routing::get,
     Router,
+    Extension
 };
 use log::info;
 mod db;
+mod routes;
 use sqlx::migrate::Migrator;
+use routes::graph_routes;
+use std::net::SocketAddr;
+pub mod handlers;
 
+// Static migrator
 static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
 
 
@@ -22,12 +27,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     MIGRATOR.run(&pool).await?;
     info!("Migrations run");
-
-    let app = Router::new().route("/", get(|| async { "Hello, World!" }));
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let app = Router::new()
+    .merge(graph_routes()) 
+    .layer(Extension(pool)); 
     info!("Server started");
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
-    info!("Listening");
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    info!("Listening on {}", addr);
     axum::serve(listener, app).await?;
     Ok(())
 }
