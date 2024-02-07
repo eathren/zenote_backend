@@ -1,1 +1,21 @@
-/target
+# Ignore compiled binaries
+/target/
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.rs.bk
+
+# Ignore build artifacts
+*.o
+*.a
+*.rlib
+*.so
+*.dll
+*.dylib
+
+# Ignore generated documentation
+/target/doc/
+
+# Ignore hidden files
+.*
