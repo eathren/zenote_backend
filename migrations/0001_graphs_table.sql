@@ -1,0 +1,55 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    date_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE graphs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    date_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    owner_id UUID NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+);
+
+CREATE TABLE nodes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    graph_id UUID NOT NULL,
+    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    date_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (graph_id) REFERENCES graphs(id)
+);
+
+CREATE TABLE edges (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    label VARCHAR(255),
+    source_id UUID NOT NULL,
+    target_id UUID NOT NULL,
+    FOREIGN KEY (source_id) REFERENCES nodes(id),
+    FOREIGN KEY (target_id) REFERENCES nodes(id)
+);
+
+CREATE TYPE block_type AS ENUM ('List', 'Text');
+CREATE TABLE blocks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    node_id UUID NOT NULL,
+    date_created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    date_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    owner_id UUID NOT NULL,
+    block_type block_type NOT NULL,
+    FOREIGN KEY (node_id) REFERENCES nodes(id),
+    FOREIGN KEY (owner_id) REFERENCES users(id)
+);
+
+
