@@ -1,9 +1,9 @@
 use axum::extract::Extension;
-use axum::{Json, response::{IntoResponse, ErrorResponse}, http::StatusCode};
+use axum::{Json, response::IntoResponse, http::StatusCode};
 use sqlx::PgPool;
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use log::error;
+
 #[derive(Serialize, Deserialize)]
 struct GraphResponse {
     id: Uuid,
@@ -11,7 +11,7 @@ struct GraphResponse {
 }
 
 #[derive(Serialize, Deserialize)]
-struct NewGraphRequest {
+pub struct NewGraphRequest {
     name: String,
     owner_id: Uuid,
 }
@@ -32,14 +32,7 @@ pub async fn create_graph(
 
     match result {
         Ok(graph) => (StatusCode::CREATED, Json(graph)),
-        Err(e) => {
-            error!("Failed to create graph: {:?}", e);
-            let error_response = ErrorResponse::new("Failed to create graph");
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(error_response) 
-            )
-        },
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(GraphResponse { id: Uuid::new_v4(), name: "Error".to_string() })), // Placeholder error response
     }
 }
 
