@@ -1,20 +1,11 @@
 use axum::extract::Extension;
 use axum::{Json, response::IntoResponse, http::StatusCode};
 use sqlx::PgPool;
-use serde::{Serialize, Deserialize};
 use uuid::Uuid;
+use crate::models::graph::{Graph, NewGraphRequest};
+use time::OffsetDateTime;
+use log::error;
 
-#[derive(Serialize, Deserialize)]
-struct GraphResponse {
-    id: Uuid,
-    name: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct NewGraphRequest {
-    name: String,
-    owner_id: Uuid,
-}
 
 
 pub async fn create_graph(
@@ -22,8 +13,8 @@ pub async fn create_graph(
     Json(input): Json<NewGraphRequest>,
 ) -> impl IntoResponse {
     let result = sqlx::query_as!(
-        GraphResponse,
-        "INSERT INTO graphs (name, owner_id) VALUES ($1, $2) RETURNING id, name",
+        Graph,
+        "INSERT INTO graphs (name, owner_id) VALUES ($1, $2) RETURNING id, name, date_created, date_updated, deleted, owner_id",
         &input.name,
         input.owner_id
     )
@@ -32,15 +23,25 @@ pub async fn create_graph(
 
     match result {
         Ok(graph) => (StatusCode::CREATED, Json(graph)),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, Json(GraphResponse { id: Uuid::new_v4(), name: "Error".to_string() })), // Placeholder error response
+        Err(e) => {
+            error!("Failed to create graph: {:?}", e);
+            // return empty graph for now.
+            (StatusCode::INTERNAL_SERVER_ERROR,  Json(Graph {
+                id: Uuid::nil(), // Use nil UUID to indicate "empty"
+                name: "".to_string(),
+                date_created: Some(OffsetDateTime::now_utc()), 
+                date_updated: Some(OffsetDateTime::now_utc()),
+                deleted: false,
+                owner_id: Uuid::nil(), // Use nil UUID
+            }))
+        },
     }
 }
-
 pub async fn fetch_all_graphs(
     Extension(pool): Extension<PgPool>,
 ) -> impl IntoResponse   {
-    let result = sqlx::query_as!(GraphResponse,
-        "SELECT id, name FROM graphs" // This is going to need to have an owner id filter
+    let result = sqlx::query_as!(Graph,
+        "SELECT * FROM graphs"
     )
     .fetch_all(&pool)
     .await;

@@ -1,12 +1,18 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
+use time::OffsetDateTime;
+
 
 #[derive(Serialize, Deserialize)]
 pub struct User {
     pub id: Uuid,
-    pub username: String,
     pub email: String,
-    pub date_created: DateTime<Utc>,
-    pub date_updated: DateTime<Utc>,
+    pub date_created: Option<OffsetDateTime>,
+    pub date_updated: Option<OffsetDateTime>,
+    pub deleted: bool,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct NewUserRequest {
+    pub email: String,
 }

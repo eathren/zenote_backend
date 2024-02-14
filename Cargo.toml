@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 axum = "0.7.4"
-chrono = { version="0.4.33", features=["serde"] }
 dotenv = "0.15.0"
 env_logger = "0.11.1"
 hyper = "1.1.0"
@@ -16,8 +15,9 @@ log = "0.4.20"
 postgres = "0.19.7"
 serde = {version="1.0.196", features=["derive"]}
 serde_json = "1.0.113"
-sqlx = { version = "0.7", features = ["postgres",  "uuid", "runtime-tokio-rustls", "macros", "migrate"] }
+sqlx = { version = "0.7", features = ["postgres",  "uuid", "time", "runtime-tokio-rustls", "macros", "migrate"] }
 sqlx-core = "0.7.3"
+time = {version= "0.3.34", features = ["serde"] }
 tokio ={ version="1.36.0", features = ["full"] }
 tower ={ version="0.4.13", features=["timeout"]}
 uuid = {version="1.7.0", features = ["v4", "serde"] }

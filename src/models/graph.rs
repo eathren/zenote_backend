@@ -1,13 +1,21 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
+
+use time::OffsetDateTime;
 
 #[derive(Serialize, Deserialize)]
 pub struct Graph {
     pub id: Uuid,
     pub name: String,
-    pub date_created: DateTime<Utc>,
-    pub date_updated: DateTime<Utc>,
+    pub date_created: Option<OffsetDateTime>,
+    pub date_updated: Option<OffsetDateTime>,
     pub deleted: bool,
     pub owner_id: Uuid,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct NewGraphRequest {
+    pub name: String,
+    pub owner_id: Uuid,
+}
+

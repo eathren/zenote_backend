@@ -14,6 +14,7 @@ use tower::ServiceBuilder;
 use std::time::Duration;
 mod errors;
 use errors::handle_generic_error;
+mod models;
 // Static migrator
 static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
 
@@ -34,6 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     let app = Router::new()
     .merge(routes::graph_routes()) 
+    .merge(routes::user_routes())
     .layer(Extension(pool))
     .layer(
         ServiceBuilder::new()
@@ -49,3 +51,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     axum::serve(listener, app).await?;
     Ok(())
 }
+
