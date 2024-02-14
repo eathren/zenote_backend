@@ -216,6 +216,7 @@ dependencies = [
  "sqlx",
  "sqlx-core",
  "tokio",
+ "tower",
  "uuid",
 ]
 

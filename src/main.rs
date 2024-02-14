@@ -1,15 +1,19 @@
-use axum::{
-    Router,
-    Extension
-};
+
 use log::info;
 mod db;
 mod routes;
 use sqlx::migrate::Migrator;
-use routes::graph_routes;
 use std::net::SocketAddr;
 pub mod handlers;
-
+use axum::{
+    Router,
+    Extension,
+    error_handling::HandleErrorLayer,
+};
+use tower::ServiceBuilder;
+use std::time::Duration;
+mod errors;
+use errors::handle_generic_error;
 // Static migrator
 static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
 
@@ -29,8 +33,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Migrations run");
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     let app = Router::new()
-    .merge(graph_routes()) 
-    .layer(Extension(pool)); 
+    .merge(routes::graph_routes()) 
+    .layer(Extension(pool))
+    .layer(
+        ServiceBuilder::new()
+            .layer(HandleErrorLayer::new(handle_generic_error)) // Handle errors generically
+            .timeout(Duration::from_secs(30))
+
+    );
+
     info!("Server started");
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
