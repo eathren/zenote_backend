@@ -1,66 +1,41 @@
-use axum::extract::{Extension, Path};
-use axum::{Json, response::IntoResponse, http::StatusCode};
+use axum::{
+    extract::{Extension, Path},
+    Json, response::{IntoResponse, Response},
+    http::StatusCode,
+};
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::models::graph::{Graph, NewGraphRequest};
-use log::error;
+use crate::models::graph::NewGraphRequest;
+use super::utils::graph_utils::{create_graph_db, fetch_graph_db, fetch_all_graphs_db};
 
+/// Handler for creating a graph
 pub async fn create_graph(
     Extension(pool): Extension<PgPool>,
     Json(input): Json<NewGraphRequest>,
-) -> Result<impl IntoResponse, StatusCode> {
-    let result = sqlx::query_as!(
-        Graph,
-        "INSERT INTO graphs (name, owner_id) VALUES ($1, $2) RETURNING id, name, date_created, date_updated, deleted, owner_id",
-        &input.name,
-        input.owner_id
-    )
-    .fetch_one(&pool)
-    .await;
-
-    match result {
-        Ok(graph) => Ok((StatusCode::CREATED, Json(graph))),
-        Err(e) => {
-            error!("Failed to create graph: {:?}", e);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        },
-    }
-}
-pub async fn fetch_all_graphs(
-    Extension(pool): Extension<PgPool>,
-) -> Result<impl IntoResponse, StatusCode> {
-    let result = sqlx::query_as!(Graph,
-        "SELECT * FROM graphs"
-    )
-    .fetch_all(&pool)
-    .await;
-
-    match result {
-        Ok(graphs) => Ok((StatusCode::OK, Json(graphs))),
-        Err(e) => {
-            error!("Failed to fetch graphs: {:?}", e);
-            Err(StatusCode::INTERNAL_SERVER_ERROR)
-        },
+) -> Response {
+    match create_graph_db(&pool, input).await {
+        Ok(graph) => (StatusCode::CREATED, Json(graph)).into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create graph").into_response(),
     }
 }
 
+/// Handler for fetching a graph by ID
 pub async fn fetch_graph(
     Extension(pool): Extension<PgPool>,
     Path(graph_id): Path<Uuid>,
-) -> Result<impl IntoResponse, StatusCode> {
-    let result = sqlx::query_as!(
-        Graph,
-        "SELECT * FROM graphs WHERE id = $1",
-        graph_id,
-    )
-    .fetch_one(&pool)
-    .await;
+) -> Response {
+    match fetch_graph_db(&pool, graph_id).await {
+        Ok(graph) => (StatusCode::OK, Json(graph)).into_response(),
+        Err(_) => (StatusCode::NOT_FOUND, "Graph not found").into_response(),
+    }
+}
 
-    match result {
-        Ok(graph) => Ok((StatusCode::OK, Json(graph))),
-        Err(e) => {
-            error!("Graph not found: {:?}", e);
-            Err(StatusCode::NOT_FOUND) 
-        },
+/// Handler for fetching all graphs
+pub async fn fetch_all_graphs(
+    Extension(pool): Extension<PgPool>,
+) -> Response {
+    match fetch_all_graphs_db(&pool).await {
+        Ok(graphs) => (StatusCode::OK, Json(graphs)).into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch graphs").into_response(),
     }
 }

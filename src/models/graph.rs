@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use time::OffsetDateTime;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Graph {
     pub id: Uuid,
     pub name: String,
