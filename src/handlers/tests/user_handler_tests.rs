@@ -48,4 +48,12 @@ pub mod user_handler_tests {
         assert_eq!(result.unwrap(), 1);
     }
     
+    #[tokio::test]
+    async fn test_delete_nonexistent_user_db() {
+        let pool = setup_test_db().await;
+        let non_existent_user_id = Uuid::new_v4();
+        let result = delete_user_db(&pool, non_existent_user_id).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 0);
+    }
 }
