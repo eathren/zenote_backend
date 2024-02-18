@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod graph_handler_tests {
     use crate::handlers::{tests::common, utils::{graph_utils::{create_graph_db, delete_graph_db, fetch_all_graphs_db, fetch_graph_db}, user_utils::create_user_db}};
-    use crate::models::{graph::NewGraphRequest, user::NewUserRequest};
+    use crate::models::graph::NewGraphRequest;
     use uuid::Uuid;
     use common::setup_test_db;
 
