@@ -40,3 +40,15 @@ pub async fn fetch_all_graphs_db(pool: &PgPool) -> Result<Vec<Graph>, sqlx::Erro
     
     Ok(graphs)
 }
+
+/// Deletes a graph by its ID from the database.
+pub async fn delete_graph_db(pool: &PgPool, graph_id: Uuid) -> Result<u64, sqlx::Error> {
+    let result = sqlx::query!(
+        "DELETE FROM graphs WHERE id = $1",
+        graph_id
+    )
+    .execute(pool)
+    .await?;
+    
+    Ok(result.rows_affected())
+}

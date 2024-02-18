@@ -1,4 +1,3 @@
-
 use sqlx::PgPool;
 use uuid::Uuid;
 use crate::models::user::User;
@@ -21,4 +20,15 @@ pub async fn fetch_user_db(pool: &PgPool, user_id: Uuid) -> Result<User, sqlx::E
     )
     .fetch_one(pool)
     .await
+}
+
+pub async fn delete_user_db(pool: &PgPool, user_id: Uuid) -> Result<u64, sqlx::Error> {
+    sqlx::query_as!(
+        User,
+        "DELETE FROM users WHERE id = $1",
+        user_id
+    )
+    .execute(pool)
+    .await
+    .map(|result| result.rows_affected())
 }

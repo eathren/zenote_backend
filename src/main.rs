@@ -2,7 +2,6 @@
 use log::info;
 mod db;
 mod routes;
-use sqlx::migrate::Migrator;
 use std::net::SocketAddr;
 pub mod handlers;
 use axum::{
@@ -15,9 +14,6 @@ use std::time::Duration;
 mod errors;
 use errors::handle_generic_error;
 mod models;
-// Static migrator
-static MIGRATOR: Migrator = sqlx::migrate!("./migrations");
-
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -29,8 +25,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("env file found");
 
     let pool = db::establish_connection().await?;
-
-    MIGRATOR.run(&pool).await?;
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("Failed to run migrations");
     info!("Migrations run");
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     let app = Router::new()

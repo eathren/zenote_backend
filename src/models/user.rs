@@ -16,3 +16,10 @@ pub struct User {
 pub struct NewUserRequest {
     pub email: String,
 }
+
+
+#[derive(Serialize, Deserialize)]
+pub struct UserUpdateRequest {
+    pub email: Option<String>,
+    pub deleted: bool,
+}

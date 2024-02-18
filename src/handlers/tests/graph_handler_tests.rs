@@ -1,6 +1,6 @@
 #[cfg(test)]
 pub mod graph_handler_tests {
-    use crate::handlers::{tests::common, utils::{graph_utils::{create_graph_db, fetch_graph_db, fetch_all_graphs_db}, user_utils::create_user_db}};
+    use crate::handlers::{tests::common, utils::{graph_utils::{create_graph_db, delete_graph_db, fetch_all_graphs_db, fetch_graph_db}, user_utils::create_user_db}};
     use crate::models::{graph::NewGraphRequest, user::NewUserRequest};
     use uuid::Uuid;
     use common::setup_test_db;
@@ -53,9 +53,67 @@ pub mod graph_handler_tests {
     #[tokio::test]
     async fn test_fetch_nonexistent_graph_db() {
         let pool = setup_test_db().await;
-        let non_existent_graph_id = Uuid::new_v4(); // Assuming this ID has not been used
+        let non_existent_graph_id = Uuid::new_v4(); 
         
         let result = fetch_graph_db(&pool, non_existent_graph_id).await;
         assert!(result.is_err(), "Should error when fetching a nonexistent graph");
     }
+
+    #[tokio::test]
+    async fn test_fetch_all_graphs_empty_db() {
+        let pool = setup_test_db().await;
+        
+        let result = fetch_all_graphs_db(&pool).await;
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_empty(), "Should fetch no graphs");
+    }
+
+    #[tokio::test]
+    async fn test_delete_graph_db() {
+        let pool = setup_test_db().await;
+        let (_, graph_id) = setup_user_and_graph(&pool).await;
+        
+        let result = delete_graph_db(&pool, graph_id).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 1);
+    }
+
+    #[tokio::test]
+    async fn test_delete_nonexistent_graph_db() {
+        let pool = setup_test_db().await;
+        let non_existent_graph_id = Uuid::new_v4();
+        
+        let result = delete_graph_db(&pool, non_existent_graph_id).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_delete_graph_db_twice() {
+        let pool = setup_test_db().await;
+        let (_, graph_id) = setup_user_and_graph(&pool).await;
+        
+        let first_result = delete_graph_db(&pool, graph_id).await;
+        assert!(first_result.is_ok());
+        assert_eq!(first_result.unwrap(), 1);
+        
+        let second_result = delete_graph_db(&pool, graph_id).await;
+        assert!(second_result.is_ok());
+        assert_eq!(second_result.unwrap(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_delete_graph_db_twice_sequentially() {
+        let pool = setup_test_db().await;
+        let (_, graph_id) = setup_user_and_graph(&pool).await;
+        
+        let first_result = delete_graph_db(&pool, graph_id).await;
+        assert!(first_result.is_ok());
+        assert_eq!(first_result.unwrap(), 1);
+        
+        let second_result = delete_graph_db(&pool, graph_id).await;
+        assert!(second_result.is_ok());
+        assert_eq!(second_result.unwrap(), 0);
+    }
+    
 }

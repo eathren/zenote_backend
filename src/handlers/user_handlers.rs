@@ -9,7 +9,7 @@ use log::error;
 use sqlx::PgPool;
 use uuid::Uuid;
 use crate::models::user::NewUserRequest;
-use super::utils::user_utils::{create_user_db, fetch_user_db}; 
+use super::utils::user_utils::{create_user_db, fetch_user_db, delete_user_db}; 
 
 pub async fn create_user(
     Extension(pool): Extension<PgPool>,
@@ -34,5 +34,17 @@ pub async fn get_user(
             error!("User not found: {:?}", e);
             StatusCode::NOT_FOUND.into_response()
         },
+    }
+}
+
+
+pub async fn delete_user(
+    Extension(pool): Extension<PgPool>,
+    Path(user_id): Path<Uuid>,
+) -> Response {
+    match delete_user_db(&pool, user_id).await {
+        Ok(rows) if rows > 0 => StatusCode::OK.into_response(),
+        Ok(_) => StatusCode::NOT_FOUND.into_response(),
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }
 }

@@ -6,7 +6,7 @@ use axum::{
 use sqlx::PgPool;
 use uuid::Uuid;
 use crate::models::graph::NewGraphRequest;
-use super::utils::graph_utils::{create_graph_db, fetch_graph_db, fetch_all_graphs_db};
+use super::utils::graph_utils::{create_graph_db, delete_graph_db, fetch_all_graphs_db, fetch_graph_db};
 
 /// Handler for creating a graph
 pub async fn create_graph(
@@ -37,5 +37,17 @@ pub async fn fetch_all_graphs(
     match fetch_all_graphs_db(&pool).await {
         Ok(graphs) => (StatusCode::OK, Json(graphs)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch graphs").into_response(),
+    }
+}
+
+/// Handler for deleting a graph by ID
+pub async fn delete_graph(
+    Extension(pool): Extension<PgPool>,
+    Path(graph_id): Path<Uuid>,
+) -> Response {
+    match delete_graph_db(&pool, graph_id).await {
+        Ok(rows) if rows > 0 => StatusCode::OK.into_response(),
+        Ok(_) => StatusCode::NOT_FOUND.into_response(),
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     }
 }

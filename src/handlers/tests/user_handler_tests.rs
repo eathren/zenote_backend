@@ -1,6 +1,6 @@
 #[cfg(test)]
 pub mod user_handler_tests {
-    use crate::handlers::{tests::common, utils::user_utils::{create_user_db, fetch_user_db}};
+    use crate::handlers::{tests::common, utils::user_utils::{create_user_db, delete_user_db, fetch_user_db}};
     use common::setup_test_db;
     use uuid::Uuid;
 
@@ -35,6 +35,17 @@ pub mod user_handler_tests {
         assert!(result.is_ok(), "Failed to fetch user: {:?}", result.err());
         let fetched_user = result.expect("Failed to unwrap fetched user");
         assert_eq!(fetched_user.email, email, "Fetched user email does not match");
+    }
+
+    #[tokio::test]
+    async fn test_delete_user_db() {
+        let pool = setup_test_db().await;
+        let email = format!("delete_{}@example.com", Uuid::new_v4());
+        let user = create_user_db(&pool, email).await.unwrap();
+
+        let result = delete_user_db(&pool, user.id).await;
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), 1);
     }
     
 }
