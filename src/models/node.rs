@@ -11,3 +11,16 @@ pub struct Node {
     pub date_updated: Option<OffsetDateTime>,
     pub deleted: bool,
 }
+
+
+#[derive(Serialize, Deserialize)]
+pub struct NewNodeRequest {
+    pub graph_id: Uuid,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UpdateNodeRequest {
+    pub name: Option<String>,
+    pub deleted: Option<bool>,
+}

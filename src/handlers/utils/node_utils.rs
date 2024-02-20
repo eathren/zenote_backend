@@ -1,5 +1,5 @@
 use sqlx::PgPool;
-use crate::models::node::Node;
+use crate::models::node::{Node, UpdateNodeRequest};
 use uuid::Uuid;
 
 pub async fn create_node_db(pool: &PgPool, graph_id: Uuid, name: String) -> Result<Node, sqlx::Error> {
@@ -27,11 +27,18 @@ pub async fn fetch_node_db(pool: &PgPool, node_id: Uuid) -> Result<Node, sqlx::E
     Ok(node)
 }
 
-pub async fn update_node_db(pool: &PgPool, node_id: Uuid, name: String) -> Result<Node, sqlx::Error> {
+pub async fn update_node_db(pool: &PgPool, node_id: Uuid, input: UpdateNodeRequest) -> Result<Node, sqlx::Error> {
     let node = sqlx::query_as!(
         Node,
-        "UPDATE nodes SET name = $1 WHERE id = $2 RETURNING *",
-        name,
+        r#"
+        UPDATE nodes 
+        SET 
+            name = COALESCE($1, name), 
+            deleted = COALESCE($2, deleted)
+        WHERE id = $3 
+        RETURNING *"#,
+        input.name,
+        input.deleted,
         node_id,
     )
     .fetch_one(pool)

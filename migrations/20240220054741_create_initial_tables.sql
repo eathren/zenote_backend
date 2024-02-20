@@ -33,6 +33,8 @@ CREATE TABLE edges (
     label VARCHAR(255),
     source_id UUID NOT NULL,
     target_id UUID NOT NULL,
+    graph_id UUID NOT NULL,
+    FOREIGN KEY (graph_id) REFERENCES graphs(id),
     FOREIGN KEY (source_id) REFERENCES nodes(id),
     FOREIGN KEY (target_id) REFERENCES nodes(id)
 );

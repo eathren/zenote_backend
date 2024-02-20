@@ -5,7 +5,7 @@ use axum::{
 };
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::models::node::{NewNodeRequest, UpdateNodeRequest};
+use crate::models::node::UpdateNodeRequest;
 use super::utils::node_utils::{create_node_db, fetch_node_db, fetch_all_nodes_db, delete_node_db, update_node_db};
 
 
@@ -13,8 +13,8 @@ pub async fn create_node(
     pool: &PgPool,
     graph_id: Uuid,
     name: String,
-) -> Result<Node, sqlx::Error> {
-    match create_node_db(&pool, input).await {
+) -> Response {
+    match create_node_db(&pool, graph_id, name).await {
         Ok(graph) => (StatusCode::CREATED, Json(graph)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create graph").into_response(),
     }
@@ -31,16 +31,17 @@ pub async fn fetch_node(
     }
 }
 
-async fn fetch_all_nodes(
+pub async fn fetch_all_nodes(
     Extension(pool): Extension<PgPool>,
+    Path(graph_id): Path<Uuid>,
 ) -> Response {
-    match fetch_all_nodes_db(&pool).await {
+    match fetch_all_nodes_db(&pool, graph_id).await {
         Ok(nodes) => (StatusCode::OK, Json(nodes)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch nodes").into_response(),
     }
 }
 
-async fn delete_node(
+pub async fn delete_node(
     Extension(pool): Extension<PgPool>,
     Path(node_id): Path<Uuid>,
 ) -> Response {

@@ -1,5 +1,3 @@
-// src/handlers/user_handlers.rs
-
 use axum::{
     extract::{Extension, Path},
     response::{IntoResponse, Response},

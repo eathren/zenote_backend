@@ -1,9 +1,9 @@
 #[cfg(test)]
 mod node_handler_tests {
-    use sqlx::{PgPool, Executor};
+    use sqlx::PgPool;
     use uuid::Uuid;
-    use crate::handlers::{tests::common::{self, setup_test_db}, utils::{graph_utils::{create_graph_db, delete_graph_db, fetch_all_graphs_db, fetch_graph_db}, node_utils::{create_node_db, delete_node_db, fetch_all_nodes_db, fetch_node_db, update_node_db}, user_utils::create_user_db}};
-    use crate::models::{user::NewUserRequest, graph::NewGraphRequest};
+    use crate::{handlers::{tests::common::setup_test_db, utils::{graph_utils::create_graph_db, node_utils::{create_node_db, delete_node_db, fetch_all_nodes_db, fetch_node_db, update_node_db}, user_utils::create_user_db}}, models::node::UpdateNodeRequest};
+    use crate::models::graph::NewGraphRequest;
 
     async fn setup_user_and_graph(pool: &PgPool) -> (Uuid, Uuid) {
         let user_email = format!("user_{}@example.com", Uuid::new_v4());
@@ -37,15 +37,19 @@ mod node_handler_tests {
     async fn test_update_node() {
         let pool = setup_test_db().await;
         let (_, graph_id) = setup_user_and_graph(&pool).await;
-
+    
         let node_name = "Initial Node".to_string();
         let created_node = create_node_db(&pool, graph_id, node_name).await.expect("Failed to create node");
-
+    
         let updated_name = "Updated Node".to_string();
-        update_node_db(&pool, created_node.id, updated_name.clone()).await.expect("Failed to update node");
-
+        let update_request = UpdateNodeRequest {
+            name: Some(updated_name.clone()),
+            deleted: None, // Not updating 'deleted' in this test, so set it to None
+        };
+        update_node_db(&pool, created_node.id, update_request).await.expect("Failed to update node");
+    
         let updated_node = fetch_node_db(&pool, created_node.id).await.expect("Failed to fetch updated node");
-
+    
         assert_eq!(updated_node.name, updated_name, "Node name should be updated");
     }
 
