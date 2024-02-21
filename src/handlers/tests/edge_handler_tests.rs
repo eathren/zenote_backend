@@ -58,6 +58,25 @@ mod edge_handler_tests{
         assert!(result.is_err(), "Should error when creating edge with nonexistent nodes");
     }
 
+    #[tokio::test]
+    async fn test_edge_delete() {
+        let pool = setup_test_db().await;
+        let (_, graph_id, node_id, node_id_2) = setup_user_and_graph_and_nodes(&pool).await;
+
+        let edge_request = NewEdgeRequest {
+            graph_id,
+            source_id: node_id,
+            target_id: node_id_2,
+            label: None,
+        };
+        let created_edge = create_edge_db(&pool, edge_request).await.expect("Failed to create edge");
+
+        let result = sqlx::query("DELETE FROM edges WHERE id = $1")
+            .bind(created_edge.id)
+            .execute(&pool)
+            .await;
+        assert!(result.is_ok(), "Should delete edge from database");
+    }
 
 
 }
