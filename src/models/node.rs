@@ -16,7 +16,7 @@ pub struct Node {
 #[derive(Serialize, Deserialize)]
 pub struct NewNodeRequest {
     pub graph_id: Uuid,
-    pub name: String,
+    pub name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -34,6 +34,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
     .merge(routes::graph_routes()) 
     .merge(routes::user_routes())
+    .merge(routes::node_routes())
+    .merge(routes::edge_routes())
     .layer(Extension(pool))
     .layer(
         ServiceBuilder::new()

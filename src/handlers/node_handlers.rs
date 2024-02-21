@@ -5,18 +5,17 @@ use axum::{
 };
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::models::node::UpdateNodeRequest;
+use crate::models::node::{UpdateNodeRequest, NewNodeRequest};
 use super::utils::node_utils::{create_node_db, fetch_node_db, fetch_all_nodes_db, delete_node_db, update_node_db};
 
 
 pub async fn create_node(
-    pool: &PgPool,
-    graph_id: Uuid,
-    name: String,
+    Extension(pool): Extension<PgPool>,
+    Json(new_node): Json<NewNodeRequest>,
 ) -> Response {
-    match create_node_db(&pool, graph_id, name).await {
-        Ok(graph) => (StatusCode::CREATED, Json(graph)).into_response(),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create graph").into_response(),
+    match create_node_db(&pool,  new_node).await {
+        Ok(node) => (StatusCode::CREATED, Json(node)).into_response(),
+        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create node").into_response(),
     }
 }
 

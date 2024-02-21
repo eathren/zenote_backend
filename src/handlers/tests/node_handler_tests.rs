@@ -2,7 +2,7 @@
 mod node_handler_tests {
     use sqlx::PgPool;
     use uuid::Uuid;
-    use crate::{handlers::{tests::common::setup_test_db, utils::{graph_utils::create_graph_db, node_utils::{create_node_db, delete_node_db, fetch_all_nodes_db, fetch_node_db, update_node_db}, user_utils::create_user_db}}, models::node::UpdateNodeRequest};
+    use crate::{handlers::{tests::common::setup_test_db, utils::{graph_utils::create_graph_db, node_utils::{create_node_db, delete_node_db, fetch_all_nodes_db, fetch_node_db, update_node_db}, user_utils::create_user_db}}, models::node::{NewNodeRequest, UpdateNodeRequest}};
     use crate::models::graph::NewGraphRequest;
 
     async fn setup_user_and_graph(pool: &PgPool) -> (Uuid, Uuid) {
@@ -24,7 +24,11 @@ mod node_handler_tests {
         let (_, graph_id) = setup_user_and_graph(&pool).await;
 
         let node_name = "Test Node".to_string();
-        let created_node = create_node_db(&pool, graph_id, node_name.clone()).await.expect("Failed to create node");
+        let node_options = NewNodeRequest {
+            graph_id,
+            name: Some(node_name.clone()),
+        };
+        let created_node = create_node_db(&pool, node_options).await.expect("Failed to create node");
 
         assert_eq!(created_node.name, node_name, "Node name should match");
 
@@ -39,7 +43,11 @@ mod node_handler_tests {
         let (_, graph_id) = setup_user_and_graph(&pool).await;
     
         let node_name = "Initial Node".to_string();
-        let created_node = create_node_db(&pool, graph_id, node_name).await.expect("Failed to create node");
+        let node_options = NewNodeRequest {
+            graph_id,
+            name: Some(node_name.clone()),
+        };
+        let created_node = create_node_db(&pool, node_options).await.expect("Failed to create node");
     
         let updated_name = "Updated Node".to_string();
         let update_request = UpdateNodeRequest {
@@ -59,7 +67,11 @@ mod node_handler_tests {
         let (_, graph_id) = setup_user_and_graph(&pool).await;
 
         let node_name = "Node to Delete".to_string();
-        let created_node = create_node_db(&pool, graph_id, node_name).await.expect("Failed to create node");
+        let node_options = NewNodeRequest {
+            graph_id,
+            name: Some(node_name.clone()),
+        };
+        let created_node = create_node_db(&pool, node_options).await.expect("Failed to create node");
 
         delete_node_db(&pool, created_node.id).await.expect("Failed to delete node");
 
@@ -72,9 +84,16 @@ mod node_handler_tests {
     async fn test_fetch_all_nodes_for_graph() {
         let pool = setup_test_db().await;
         let (_, graph_id) = setup_user_and_graph(&pool).await;
-
-        create_node_db(&pool, graph_id, "Node 1".to_string()).await.expect("Failed to create first node");
-        create_node_db(&pool, graph_id, "Node 2".to_string()).await.expect("Failed to create second node");
+        let node_options_1 = NewNodeRequest {
+            graph_id,
+            name: Some("Node 1".to_string()),
+        };
+        let node_options_2 = NewNodeRequest {
+            graph_id,
+            name: Some("Node 2".to_string()),
+        };
+        create_node_db(&pool, node_options_1).await.expect("Failed to create first node");
+        create_node_db(&pool, node_options_2).await.expect("Failed to create second node");
 
         let nodes = fetch_all_nodes_db(&pool, graph_id).await.expect("Failed to fetch nodes for graph");
 

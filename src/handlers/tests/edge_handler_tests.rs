@@ -2,7 +2,7 @@
 mod edge_handler_tests{
     use sqlx::PgPool;
     use uuid::Uuid;
-    use crate::{handlers::{tests::common::setup_test_db, utils::{edge_utils::{create_edge_db, fetch_edge_db}, graph_utils::create_graph_db, node_utils::create_node_db, user_utils::create_user_db}}, models::edge::NewEdgeRequest};
+    use crate::{handlers::{tests::common::setup_test_db, utils::{edge_utils::{create_edge_db, fetch_edge_db}, graph_utils::create_graph_db, node_utils::create_node_db, user_utils::create_user_db}}, models::{edge::NewEdgeRequest, node::NewNodeRequest}};
     use crate::models::graph::NewGraphRequest;
 
     async fn setup_user_and_graph_and_nodes(pool: &PgPool) -> (Uuid, Uuid, Uuid, Uuid) {
@@ -14,10 +14,18 @@ mod edge_handler_tests{
             owner_id: user.id,
         };
         let graph = create_graph_db(pool, new_graph_request).await.expect("Failed to create graph");
-        let node_name = "Test Node 1".to_string();
-        let node = create_node_db(pool, graph.id, node_name.clone()).await.expect("Failed to create node");
-        let node_name_2 = "Test Node 2".to_string();
-        let node_2 = create_node_db(pool, graph.id, node_name_2.clone()).await.expect("Failed to create node");
+        let node_options_1 = NewNodeRequest {
+            graph_id: graph.id,
+            name: Some("Node 1".to_string()),
+        };
+        let node_options_2 = NewNodeRequest {
+            graph_id: graph.id,
+            name: Some("Node 2".to_string()),
+        };
+
+
+        let node = create_node_db(pool, node_options_1).await.expect("Failed to create node");
+        let node_2 = create_node_db(pool, node_options_2).await.expect("Failed to create node");
         (user.id, graph.id, node.id, node_2.id)
     }
 

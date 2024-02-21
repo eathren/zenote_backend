@@ -1,13 +1,15 @@
 use sqlx::PgPool;
-use crate::models::node::{Node, UpdateNodeRequest};
+use crate::models::node::{NewNodeRequest, Node, UpdateNodeRequest};
 use uuid::Uuid;
 
-pub async fn create_node_db(pool: &PgPool, graph_id: Uuid, name: String) -> Result<Node, sqlx::Error> {
+pub async fn create_node_db(pool: &PgPool, new_node: NewNodeRequest) -> Result<Node, sqlx::Error> {
+    let node_name = new_node.name.unwrap_or_else(|| "New Node".to_string());
+
     let node = sqlx::query_as!(
         Node,
         "INSERT INTO nodes (graph_id, name) VALUES ($1, $2) RETURNING *",
-        graph_id,
-        name,
+        new_node.graph_id,
+        node_name,
     )
     .fetch_one(pool)
     .await?;
