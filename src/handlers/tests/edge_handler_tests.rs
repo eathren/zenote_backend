@@ -6,8 +6,10 @@ mod edge_handler_tests{
     use crate::models::graph::NewGraphRequest;
 
     async fn setup_user_and_graph_and_nodes(pool: &PgPool) -> (Uuid, Uuid, Uuid, Uuid) {
+        let user_sub = Uuid::new_v4().to_string();
+
         let user_email = format!("user_{}@example.com", Uuid::new_v4());
-        let user = create_user_db(pool, user_email).await.expect("Failed to create user");
+        let user = create_user_db(pool, user_sub, user_email).await.expect("Failed to create user");
         
         let new_graph_request = NewGraphRequest {
             name: "Test Graph".to_string(),

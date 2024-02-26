@@ -6,6 +6,7 @@ use time::OffsetDateTime;
 #[derive(Serialize, Deserialize)]
 pub struct User {
     pub id: Uuid,
+    pub sub: String,
     pub email: String,
     pub date_created: Option<OffsetDateTime>,
     pub date_updated: Option<OffsetDateTime>,
@@ -15,6 +16,7 @@ pub struct User {
 #[derive(Serialize, Deserialize)]
 pub struct NewUserRequest {
     pub email: String,
+    pub sub: String,
 }
 
 

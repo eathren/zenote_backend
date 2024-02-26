@@ -7,29 +7,31 @@ pub mod user_handler_tests {
     #[tokio::test]
     async fn test_create_user_db() {
         let pool = setup_test_db().await;
+        let user_sub = Uuid::new_v4().to_string();
         let unique_email = format!("test_{}@example.com", Uuid::new_v4());
-        let result = create_user_db(&pool, unique_email).await;
+        let result = create_user_db(&pool, user_sub, unique_email).await;
         assert!(result.is_ok());
     }
 
     #[tokio::test]
     async fn test_create_same_user_db() {
         let pool = setup_test_db().await;
+        let user_sub = Uuid::new_v4().to_string();
         let email = format!("test_same_{}@example.com", Uuid::new_v4());
-        let first_attempt = create_user_db(&pool, email.clone()).await;
+        let first_attempt = create_user_db(&pool, user_sub.clone(), email.clone()).await;
         assert!(first_attempt.is_ok());
 
         // Try to create the same user again
-        let second_attempt = create_user_db(&pool, email).await;
-        assert!(second_attempt.is_err()); // Expecting error due to duplicate email
+        let second_attempt = create_user_db(&pool, user_sub.clone(), email).await;
+        assert!(second_attempt.is_err()); 
     }
 
     #[tokio::test]
     async fn test_fetch_user_db() {
         let pool = setup_test_db().await;
+        let user_sub = Uuid::new_v4().to_string();
         let email = format!("fetch_user_{}@example.com", Uuid::new_v4());
-        let user = create_user_db(&pool, email.clone()).await.expect("Failed to create user for fetch test");
-    
+        let user = create_user_db(&pool, user_sub, email.clone()).await.expect("Failed to create user for fetch test");
         let result = fetch_user_db(&pool, user.id).await;
         
         assert!(result.is_ok(), "Failed to fetch user: {:?}", result.err());
@@ -40,8 +42,10 @@ pub mod user_handler_tests {
     #[tokio::test]
     async fn test_delete_user_db() {
         let pool = setup_test_db().await;
+        let user_sub = Uuid::new_v4().to_string();
+
         let email = format!("delete_{}@example.com", Uuid::new_v4());
-        let user = create_user_db(&pool, email).await.unwrap();
+        let user = create_user_db(&pool, user_sub, email).await.unwrap();
 
         let result = delete_user_db(&pool, user.id).await;
         assert!(result.is_ok());

@@ -7,7 +7,9 @@ mod node_handler_tests {
 
     async fn setup_user_and_graph(pool: &PgPool) -> (Uuid, Uuid) {
         let user_email = format!("user_{}@example.com", Uuid::new_v4());
-        let user = create_user_db(pool, user_email).await.expect("Failed to create user");
+        let user_sub = Uuid::new_v4().to_string();
+
+        let user = create_user_db(pool, user_sub, user_email).await.expect("Failed to create user");
         
         let new_graph_request = NewGraphRequest {
             name: "Test Graph".to_string(),

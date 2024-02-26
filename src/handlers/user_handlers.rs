@@ -13,7 +13,7 @@ pub async fn create_user(
     Extension(pool): Extension<PgPool>,
     Json(input): Json<NewUserRequest>,
 ) -> Response {
-    match create_user_db(&pool, input.email).await {
+    match create_user_db(&pool, input.sub, input.email).await {
         Ok(user) => (StatusCode::CREATED, Json(user)).into_response(),
         Err(e) => {
             error!("Failed to create user: {:?}", e);

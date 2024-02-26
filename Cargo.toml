@@ -13,7 +13,9 @@ hyper = "1.1.0"
 json = "0.12.4"
 jsonwebtoken = "9.2.0"
 log = "0.4.20"
+openidconnect = "3.5.0"
 postgres = "0.19.7"
+reqwest = "0.11.24"
 serde = {version="1.0.196", features=["derive"]}
 serde_json = "1.0.113"
 sqlx = { version = "0.7", features = ["postgres",  "uuid", "time", "runtime-tokio-rustls", "macros", "migrate"] }
@@ -21,4 +23,5 @@ sqlx-core = "0.7.3"
 time = {version= "0.3.34", features = ["serde"] }
 tokio ={ version="1.36.0", features = ["full"] }
 tower ={ version="0.4.13", features=["timeout"]}
-uuid = {version="1.7.0", features = ["v4", "serde"] }
+tower-http = "0.5.2"
+uuid = {version="1.7.0", features = ["v4", "serde", "std"] }

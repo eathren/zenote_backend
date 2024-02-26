@@ -5,15 +5,16 @@ mod routes;
 use std::net::SocketAddr;
 pub mod handlers;
 use axum::{
-    Router,
-    Extension,
-    error_handling::HandleErrorLayer,
+    error_handling::HandleErrorLayer, middleware, Extension, Router
 };
 use tower::ServiceBuilder;
 use std::time::Duration;
 mod errors;
 use errors::handle_generic_error;
+use crate::db::migrate_databases;
+use tower_http::cors::{CorsLayer, Origin};
 mod models;
+mod utils;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -25,24 +26,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("env file found");
 
     let pool = db::establish_connection().await?;
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await
-        .expect("Failed to run migrations");
-    info!("Migrations run");
+    migrate_databases().await?;
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+
+    let allowed_origins = AllowOrigin::list(vec![
+        "http://localhost:3000".parse().unwrap(),
+        "https://zenote.net".parse().unwrap(),
+    ]);
+
+    let cors = CorsLayer::new()
+        .allow_methods(vec!["GET", "POST", "DELETE", "OPTIONS"])
+        .allow_headers(vec!["Content-Type", "Authorization"])
+        .allow_origin(allowed_origins)
+        .allow_credentials(true)
+        .max_age(Duration::from_secs(3600));
+
+    // All current routes declared here
+    let api_v1_routes = Router::new()
+    .nest("/users", routes::user_routes())
+    .nest("/graphs", routes::graph_routes())
+    .nest("/nodes", routes::node_routes())
+    .nest("/edges", routes::edge_routes());
+
     let app = Router::new()
-    .merge(routes::graph_routes()) 
-    .merge(routes::user_routes())
-    .merge(routes::node_routes())
-    .merge(routes::edge_routes())
+    .nest("/api/v1/", api_v1_routes)
     .layer(Extension(pool))
     .layer(
         ServiceBuilder::new()
-            .layer(HandleErrorLayer::new(handle_generic_error)) // Handle errors generically
+            .layer(HandleErrorLayer::new(handle_generic_error)) 
             .timeout(Duration::from_secs(30))
-
-    );
+    )
+    .layer(cors);
 
     info!("Server started");
 

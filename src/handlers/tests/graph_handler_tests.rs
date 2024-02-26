@@ -6,8 +6,9 @@ pub mod graph_handler_tests {
     use common::setup_test_db;
 
     async fn setup_user_and_graph(pool: &sqlx::PgPool) -> (Uuid, Uuid) {
+        let user_sub = Uuid::new_v4().to_string();
         let user_email = format!("user_{}@example.com", Uuid::new_v4());
-        let user = create_user_db(pool, user_email).await.expect("Failed to create user");
+        let user = create_user_db(pool, user_sub, user_email).await.expect("Failed to create user");
         let graph_request = NewGraphRequest {
             name: "Test Graph".to_string(),
             owner_id: user.id,
@@ -19,8 +20,10 @@ pub mod graph_handler_tests {
     #[tokio::test]
     async fn test_create_graph_db() {
         let pool = setup_test_db().await; 
+        let user_sub = Uuid::new_v4().to_string();
         let user_email = format!("user_{}@example.com", Uuid::new_v4());
-        let user = create_user_db(&pool, user_email).await.expect("Failed to create user");
+
+        let user = create_user_db(&pool,user_sub, user_email).await.expect("Failed to create user");
         
         let new_graph_request = NewGraphRequest {
             name: "Test Graph".to_string(),
