@@ -2,10 +2,11 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use crate::handlers::user_handlers::{create_user, get_user};
+use crate::handlers::user_handlers::{create_user, get_all_users, get_user};
 
 pub fn user_routes() -> Router {
     Router::new()
-        .route("/user", post(create_user))
-        .route("/user/:id", get(get_user))
+        .route("/users", post(create_user))
+        .route("/users/:id", get(get_user))
+        .route("/users", get(get_all_users))
 }

@@ -29,38 +29,6 @@ services:
     networks:
       - web
 
-  # Keycloak for Authentication
-  keycloak:
-    image: quay.io/keycloak/keycloak:23.0.6
-    restart: unless-stopped
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: db
-      DB_PORT: 5432
-      DB_DATABASE: ${POSTGRES_DB}
-      DB_USER: postgres
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KEYCLOAK_USER: ${KEYCLOAK_USER}
-      KEYCLOAK_PASSWORD: ${KEYCLOAK_PASSWORD}
-      KEYCLOAK_IMPORT: /tmp/realm-export.json
-      KC_DB_URL_DATABASE: ${KC_DB_URL_DATABASE}
-      KC_DB_USERNAME: ${KC_DB_USERNAME}
-      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
-      KC_HOSTNAME_STRICT_HTTPS: false
-      KC_HOSTNAME_STRICT: false
-      KC_HTTP_ENABLED: true
-    command: ["start-dev", "--import-realm"]
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./realm-export.json:/tmp/realm-export.json
-    depends_on:
-      - db
-    networks:
-      - web
-
 volumes:
   zenote_db:
   zenote_db_test:

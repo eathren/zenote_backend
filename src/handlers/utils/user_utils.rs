@@ -32,3 +32,12 @@ pub async fn delete_user_db(pool: &PgPool, user_id: Uuid) -> Result<u64, sqlx::E
     .await
     .map(|result| result.rows_affected())
 }
+
+pub async fn fetch_all_users_db(pool: &PgPool) -> Result<Vec<User>, sqlx::Error> {
+    sqlx::query_as!(
+        User,
+        "SELECT * FROM users",
+    )
+    .fetch_all(pool)
+    .await
+}
