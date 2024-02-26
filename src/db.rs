@@ -1,8 +1,9 @@
 use sqlx::postgres::PgPool;
 use std::env;
-use sqlx::migrate::Migrator;
 use log::{info, error};
-// static MIGRATOR: Migrator = sqlx::migrate!();
+
+// Define the Migrator statically with the `sqlx::migrate!` macro
+static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!();
 
 pub async fn establish_connection() -> Result<PgPool, sqlx::Error> {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -23,7 +24,10 @@ pub async fn establish_connection() -> Result<PgPool, sqlx::Error> {
 
 pub async fn run_migrations_for_url(database_url: &str) -> Result<(), sqlx::Error> {
     let pool = PgPool::connect(database_url).await?;
-    sqlx::migrate!("./migrations").run(&pool).await?;
+
+    // Use the statically defined MIGRATOR instead of loading migrations at runtime
+    MIGRATOR.run(&pool).await?;
+
     Ok(())
 }
 
@@ -35,6 +39,7 @@ pub async fn migrate_databases() -> Result<(), Box<dyn std::error::Error>> {
     // Migrate the test database
     let test_database_url = env::var("TEST_DATABASE_URL").expect("TEST_DATABASE_URL must be set");
     run_migrations_for_url(&test_database_url).await.expect("Failed to run migrations on test database");
-    info!("Migrations run");
+
+    info!("Migrations successfully run on both main and test databases.");
     Ok(())
 }

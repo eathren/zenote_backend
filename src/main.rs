@@ -35,20 +35,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "https://zenote.net".parse().unwrap(),
     ]);
 
-    // let cors = CorsLayer::new()
-    // .allow_methods(vec![
-    //     Method::GET,
-    //     Method::POST,
-    //     Method::DELETE,
-    //     Method::OPTIONS,
-    // ])
-    // .allow_headers(vec![
-    //     HeaderName::from_str("Content-Type").unwrap(),
-    //     HeaderName::from_str("Authorization").unwrap(),
-    // ])
-    // .allow_origin(allowed_origins)
-    // .allow_credentials(true)
-    // .max_age(Duration::from_secs(3600));
+    let cors = CorsLayer::new()
+    .allow_methods(vec![
+        Method::GET,
+        Method::POST,
+        Method::DELETE,
+        Method::OPTIONS,
+    ])
+    .allow_headers(vec![
+        HeaderName::from_str("Content-Type").unwrap(),
+        HeaderName::from_str("Authorization").unwrap(),
+    ])
+    .allow_origin(allowed_origins)
+    .allow_credentials(true)
+    .max_age(Duration::from_secs(3600));
 
     // All current routes declared here
     let api_v1_routes = Router::new()
@@ -64,8 +64,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ServiceBuilder::new()
             .layer(HandleErrorLayer::new(handle_generic_error)) 
             .timeout(Duration::from_secs(30))
-    );
-    // .layer(cors);
+    )
+    .layer(cors);
 
     info!("Server started");
 

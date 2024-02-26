@@ -31,6 +31,7 @@ pub async fn fetch_graph(
 }
 
 /// Handler for fetching all graphs
+// this should be user specific.
 pub async fn fetch_all_graphs(
     Extension(pool): Extension<PgPool>,
 ) -> Response {
