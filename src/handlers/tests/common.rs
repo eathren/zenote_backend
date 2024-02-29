@@ -13,7 +13,7 @@ pub async fn setup_test_db() -> sqlx::PgPool {
         .await
         .expect("Failed to connect to the database");
 
-    let tables = vec!["users", "graphs", "nodes", "edges"];
+    let tables = ["users", "graphs", "nodes", "edges"];
     for table in tables.iter().rev() {
         // `graphs` references `users`, clear `graphs` first
         let query = format!("TRUNCATE TABLE {} RESTART IDENTITY CASCADE;", table);

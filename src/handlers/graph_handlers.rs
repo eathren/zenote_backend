@@ -5,7 +5,7 @@ use crate::models::graph::NewGraphRequest;
 use axum::{
     extract::{Extension, Query},
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::IntoResponse,
     Json,
 };
 use serde::Deserialize;
@@ -26,7 +26,7 @@ pub struct GraphQuery {
 pub async fn create_graph(
     Extension(pool): Extension<PgPool>,
     Json(input): Json<NewGraphRequest>,
-) -> Response {
+) -> impl IntoResponse {
     match create_graph_db(&pool, input).await {
         Ok(graph) => (StatusCode::CREATED, Json(graph)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create graph").into_response(),
@@ -37,7 +37,7 @@ pub async fn create_graph(
 pub async fn fetch_graph(
     Extension(pool): Extension<PgPool>,
     Query(graph_query): Query<GraphQuery>,
-) -> Response {
+) -> impl IntoResponse {
     match fetch_graph_db(&pool, graph_query.graph_id).await {
         Ok(graph) => (StatusCode::OK, Json(graph)).into_response(),
         Err(_) => (StatusCode::NOT_FOUND, "Graph not found").into_response(),
@@ -49,7 +49,7 @@ pub async fn fetch_graph(
 pub async fn fetch_all_graphs(
     Extension(pool): Extension<PgPool>,
     Query(graph_query): Query<AllGraphQuery>,
-) -> Response {
+) -> impl IntoResponse {
     match fetch_all_graphs_db(&pool, graph_query.owner_id).await {
         Ok(graphs) => (StatusCode::OK, Json(graphs)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch graphs").into_response(),
@@ -60,7 +60,7 @@ pub async fn fetch_all_graphs(
 pub async fn delete_graph(
     Extension(pool): Extension<PgPool>,
     Query(graph_query): Query<GraphQuery>,
-) -> Response {
+) -> impl IntoResponse {
     match delete_graph_db(&pool, graph_query.graph_id).await {
         Ok(rows) if rows > 0 => StatusCode::OK.into_response(),
         Ok(_) => StatusCode::NOT_FOUND.into_response(),

@@ -6,7 +6,7 @@ use crate::models::edge::NewEdgeRequest;
 use axum::{
     extract::{Extension, Path},
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::IntoResponse,
     Json,
 };
 use sqlx::PgPool;
@@ -16,7 +16,7 @@ use uuid::Uuid;
 pub async fn create_edge(
     Extension(pool): Extension<PgPool>,
     Json(input): Json<NewEdgeRequest>,
-) -> Response {
+) -> impl IntoResponse {
     match create_edge_db(&pool, input).await {
         Ok(edge) => (StatusCode::CREATED, Json(edge)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create edge").into_response(),
@@ -24,7 +24,7 @@ pub async fn create_edge(
 }
 
 /// Handler for fetching an edge by ID
-pub async fn fetch_edge(Extension(pool): Extension<PgPool>, Path(edge_id): Path<Uuid>) -> Response {
+pub async fn fetch_edge(Extension(pool): Extension<PgPool>, Path(edge_id): Path<Uuid>) -> impl IntoResponse {
     match fetch_edge_db(&pool, edge_id).await {
         Ok(edge) => (StatusCode::OK, Json(edge)).into_response(),
         Err(_) => (StatusCode::NOT_FOUND, "Edge not found").into_response(),
@@ -35,7 +35,7 @@ pub async fn fetch_edge(Extension(pool): Extension<PgPool>, Path(edge_id): Path<
 pub async fn fetch_all_edges(
     Extension(pool): Extension<PgPool>,
     Path(graph_id): Path<Uuid>,
-) -> Response {
+) -> impl IntoResponse {
     match fetch_all_edges_db(&pool, graph_id).await {
         Ok(edges) => (StatusCode::OK, Json(edges)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch edges").into_response(),
@@ -46,7 +46,7 @@ pub async fn fetch_all_edges(
 pub async fn delete_edge(
     Extension(pool): Extension<PgPool>,
     Path(edge_id): Path<Uuid>,
-) -> Response {
+) -> impl IntoResponse {
     match delete_edge_db(&pool, edge_id).await {
         Ok(rows) if rows > 0 => StatusCode::OK.into_response(),
         Ok(_) => (StatusCode::NOT_FOUND, "Edge not found").into_response(),
@@ -58,7 +58,7 @@ pub async fn delete_edge(
 pub async fn fetch_edges_by_source(
     Extension(pool): Extension<PgPool>,
     Path((graph_id, source_id)): Path<(Uuid, Uuid)>,
-) -> Response {
+) -> impl IntoResponse {
     match fetch_edges_by_source_db(&pool, graph_id, source_id).await {
         Ok(edges) => (StatusCode::OK, Json(edges)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch edges").into_response(),
@@ -69,7 +69,7 @@ pub async fn fetch_edges_by_source(
 pub async fn fetch_edges_by_target(
     Extension(pool): Extension<PgPool>,
     Path((graph_id, target_id)): Path<(Uuid, Uuid)>,
-) -> Response {
+) -> impl IntoResponse {
     match fetch_edges_by_target_db(&pool, graph_id, target_id).await {
         Ok(edges) => (StatusCode::OK, Json(edges)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch edges").into_response(),
@@ -79,7 +79,7 @@ pub async fn fetch_edges_by_target(
 pub async fn fetch_edges_by_source_and_target(
     Extension(pool): Extension<PgPool>,
     Path((graph_id, source_id, target_id)): Path<(Uuid, Uuid, Uuid)>,
-) -> Response {
+) -> impl IntoResponse {
     match fetch_edges_by_source_and_target_db(&pool, graph_id, source_id, target_id).await {
         Ok(edges) => (StatusCode::OK, Json(edges)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to fetch edges").into_response(),

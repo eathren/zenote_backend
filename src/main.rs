@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Starting server");
 
     info!("Checking for .env file");
-    dotenv::dotenv().ok().expect("Failed to load .env file");
+    dotenv::dotenv().expect("Failed to load .env file");
     info!("env file found");
 
     let pool = db::establish_connection().await?;
