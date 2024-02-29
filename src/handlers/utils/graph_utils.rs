@@ -30,10 +30,12 @@ pub async fn fetch_graph_db(pool: &PgPool, graph_id: Uuid) -> Result<Graph, sqlx
 }
 
 /// Fetches all graphs from the database.
-pub async fn fetch_all_graphs_db(pool: &PgPool) -> Result<Vec<Graph>, sqlx::Error> {
+pub async fn fetch_all_graphs_db(pool: &PgPool, owner_id: String) -> Result<Vec<Graph>, sqlx::Error> {
     let graphs = sqlx::query_as!(
         Graph,
-        "SELECT id, name, date_created, date_updated, deleted, owner_id FROM graphs"
+        "SELECT *  FROM graphs
+        WHERE owner_id =$1 AND deleted = false", 
+        owner_id
     )
     .fetch_all(pool)
     .await?;

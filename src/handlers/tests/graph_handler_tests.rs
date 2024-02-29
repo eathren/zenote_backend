@@ -1,6 +1,6 @@
 #[cfg(test)]
 pub mod graph_handler_tests {
-    use crate::handlers::{tests::common, utils::{graph_utils::{create_graph_db, delete_graph_db, fetch_all_graphs_db, fetch_graph_db}, user_utils::create_user_db}};
+    use crate::{handlers::{tests::common, utils::{graph_utils::{create_graph_db, delete_graph_db, fetch_all_graphs_db, fetch_graph_db}, user_utils::create_user_db}}, models::user};
     use crate::models::graph::NewGraphRequest;
     use uuid::Uuid;
     use common::setup_test_db;
@@ -46,9 +46,9 @@ pub mod graph_handler_tests {
     #[tokio::test]
     async fn test_fetch_all_graphs_db() {
         let pool = setup_test_db().await;
-        setup_user_and_graph(&pool).await; // Setup initial graph
+        let (user_id, _graph_id) = setup_user_and_graph(&pool).await; // Setup initial graph
         
-        let result = fetch_all_graphs_db(&pool).await;
+        let result = fetch_all_graphs_db(&pool, user_id).await;
         assert!(result.is_ok());
         assert!(!result.unwrap().is_empty(), "Should fetch at least one graph");
     }
@@ -65,8 +65,7 @@ pub mod graph_handler_tests {
     #[tokio::test]
     async fn test_fetch_all_graphs_empty_db() {
         let pool = setup_test_db().await;
-        
-        let result = fetch_all_graphs_db(&pool).await;
+        let result = fetch_all_graphs_db(&pool, "1234".to_string()).await;
         assert!(result.is_ok());
         assert!(result.unwrap().is_empty(), "Should fetch no graphs");
     }
