@@ -1,6 +1,4 @@
-
-pub mod user;
+pub mod edge;
 pub mod graph;
 pub mod node;
-pub mod edge;
-
+pub mod user;

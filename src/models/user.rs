@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-
 #[derive(Serialize, Deserialize)]
 pub struct User {
     pub id: String,
@@ -16,7 +15,6 @@ pub struct NewUserRequest {
     pub email: String,
     pub sub: String,
 }
-
 
 #[derive(Serialize, Deserialize)]
 pub struct UserUpdateRequest {

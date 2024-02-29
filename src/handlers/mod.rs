@@ -1,7 +1,7 @@
-pub mod graph_handlers;
-pub mod user_handlers;
-pub mod utils;
-pub mod node_handlers;
 pub mod edge_handlers;
+pub mod graph_handlers;
+pub mod node_handlers;
 #[cfg(test)]
 mod tests;
+pub mod user_handlers;
+pub mod utils;

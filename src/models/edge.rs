@@ -15,10 +15,10 @@ pub struct NewEdgeRequest {
     pub graph_id: Uuid,
     pub source_id: Uuid,
     pub target_id: Uuid,
-    pub label: Option<String>, 
+    pub label: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct UpdateEdgeRequest {
-    pub label: Option<String>, 
+    pub label: Option<String>,
 }

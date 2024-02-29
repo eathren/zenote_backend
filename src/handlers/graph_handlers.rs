@@ -1,13 +1,16 @@
+use super::utils::graph_utils::{
+    create_graph_db, delete_graph_db, fetch_all_graphs_db, fetch_graph_db,
+};
+use crate::models::graph::NewGraphRequest;
 use axum::{
-    extract::{Extension,Query},
-    Json, response::{IntoResponse, Response},
+    extract::{Extension, Query},
     http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
 };
 use serde::Deserialize;
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::models::graph::NewGraphRequest;
-use super::utils::graph_utils::{create_graph_db, delete_graph_db, fetch_all_graphs_db, fetch_graph_db};
 
 #[derive(Deserialize)]
 pub struct AllGraphQuery {
@@ -18,7 +21,6 @@ pub struct AllGraphQuery {
 pub struct GraphQuery {
     graph_id: Uuid,
 }
-
 
 /// Handler for creating a graph
 pub async fn create_graph(

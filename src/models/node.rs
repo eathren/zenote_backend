@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use time::OffsetDateTime;
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 pub struct Node {
@@ -11,7 +11,6 @@ pub struct Node {
     pub date_updated: Option<OffsetDateTime>,
     pub deleted: bool,
 }
-
 
 #[derive(Serialize, Deserialize)]
 pub struct NewNodeRequest {

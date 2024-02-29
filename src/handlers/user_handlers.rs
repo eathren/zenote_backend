@@ -1,12 +1,13 @@
+use super::utils::user_utils::{create_user_db, delete_user_db, fetch_all_users_db, fetch_user_db};
+use crate::models::user::NewUserRequest;
 use axum::{
     extract::{Extension, Path},
+    http::StatusCode,
     response::{IntoResponse, Response},
-    Json, http::StatusCode,
+    Json,
 };
 use log::{error, info};
 use sqlx::PgPool;
-use crate::models::user::NewUserRequest;
-use super::utils::user_utils::{create_user_db, delete_user_db, fetch_all_users_db, fetch_user_db}; 
 
 pub async fn create_user(
     Extension(pool): Extension<PgPool>,
@@ -17,24 +18,20 @@ pub async fn create_user(
         Err(e) => {
             error!("Failed to create user: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
-        },
+        }
     }
 }
 
-pub async fn get_user(
-    Extension(pool): Extension<PgPool>,
-    Path(user_id): Path<String>,
-) -> Response {
+pub async fn get_user(Extension(pool): Extension<PgPool>, Path(user_id): Path<String>) -> Response {
     info!("Fetching user: {:?}", user_id);
     match fetch_user_db(&pool, user_id).await {
         Ok(user) => (StatusCode::OK, Json(user)).into_response(),
         Err(e) => {
             error!("User not found: {:?}", e);
             StatusCode::NOT_FOUND.into_response()
-        },
+        }
     }
 }
-
 
 pub async fn delete_user(
     Extension(pool): Extension<PgPool>,
@@ -47,15 +44,13 @@ pub async fn delete_user(
     }
 }
 
-pub async fn get_all_users(
-    Extension(pool): Extension<PgPool>,
-) -> Response {
+pub async fn get_all_users(Extension(pool): Extension<PgPool>) -> Response {
     info!("Fetching all users.");
     match fetch_all_users_db(&pool).await {
         Ok(users) => (StatusCode::OK, Json(users)).into_response(),
         Err(e) => {
             error!("Failed to fetch users: {:?}", e);
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
-        },
+        }
     }
 }

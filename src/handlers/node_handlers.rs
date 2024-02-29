@@ -1,29 +1,27 @@
+use super::utils::node_utils::{
+    create_node_db, delete_node_db, fetch_all_nodes_db, fetch_node_db, update_node_db,
+};
+use crate::models::node::{NewNodeRequest, UpdateNodeRequest};
 use axum::{
     extract::{Extension, Path},
-    Json, response::{IntoResponse, Response},
     http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
 };
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::models::node::{UpdateNodeRequest, NewNodeRequest};
-use super::utils::node_utils::{create_node_db, fetch_node_db, fetch_all_nodes_db, delete_node_db, update_node_db};
-
 
 pub async fn create_node(
     Extension(pool): Extension<PgPool>,
     Json(new_node): Json<NewNodeRequest>,
 ) -> Response {
-    match create_node_db(&pool,  new_node).await {
+    match create_node_db(&pool, new_node).await {
         Ok(node) => (StatusCode::CREATED, Json(node)).into_response(),
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to create node").into_response(),
     }
 }
 
-
-pub async fn fetch_node(
-    Extension(pool): Extension<PgPool>,
-    Path(node_id): Path<Uuid>,
-) -> Response {
+pub async fn fetch_node(Extension(pool): Extension<PgPool>, Path(node_id): Path<Uuid>) -> Response {
     match fetch_node_db(&pool, node_id).await {
         Ok(node) => (StatusCode::OK, Json(node)).into_response(),
         Err(_) => (StatusCode::NOT_FOUND, "Node not found").into_response(),

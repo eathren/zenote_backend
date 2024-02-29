@@ -3,7 +3,7 @@ use axum::{
     Router,
 };
 
-use crate::handlers::graph_handlers::{ create_graph, fetch_all_graphs, fetch_graph};
+use crate::handlers::graph_handlers::{create_graph, fetch_all_graphs, fetch_graph};
 
 pub fn graph_routes() -> Router {
     Router::new()

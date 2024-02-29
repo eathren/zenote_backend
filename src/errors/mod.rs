@@ -1,8 +1,4 @@
-use axum::{
-    response::IntoResponse,
-    http::StatusCode,
-    BoxError,
-};
+use axum::{http::StatusCode, response::IntoResponse, BoxError};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -17,9 +13,7 @@ struct GenericErrorResponse {
 // }
 
 // A generic error handler that can be used across the application
-pub async fn handle_generic_error(
-    err: BoxError,
-) -> impl IntoResponse {
+pub async fn handle_generic_error(err: BoxError) -> impl IntoResponse {
     let error_response = GenericErrorResponse {
         error: format!("Something went wrong: {}", err),
     };

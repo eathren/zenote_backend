@@ -1,14 +1,16 @@
+use super::utils::edge_utils::{
+    create_edge_db, delete_edge_db, fetch_all_edges_db, fetch_edge_db,
+    fetch_edges_by_source_and_target_db, fetch_edges_by_source_db, fetch_edges_by_target_db,
+};
+use crate::models::edge::NewEdgeRequest;
 use axum::{
     extract::{Extension, Path},
-    Json, response::{IntoResponse, Response},
     http::StatusCode,
+    response::{IntoResponse, Response},
+    Json,
 };
 use sqlx::PgPool;
 use uuid::Uuid;
-use crate::models::edge::NewEdgeRequest;
-use super::utils::edge_utils::{
-    create_edge_db, delete_edge_db, fetch_all_edges_db, fetch_edge_db, fetch_edges_by_source_and_target_db, fetch_edges_by_source_db, fetch_edges_by_target_db
-};
 
 /// Handler for creating an edge
 pub async fn create_edge(
@@ -22,10 +24,7 @@ pub async fn create_edge(
 }
 
 /// Handler for fetching an edge by ID
-pub async fn fetch_edge(
-    Extension(pool): Extension<PgPool>,
-    Path(edge_id): Path<Uuid>,
-) -> Response {
+pub async fn fetch_edge(Extension(pool): Extension<PgPool>, Path(edge_id): Path<Uuid>) -> Response {
     match fetch_edge_db(&pool, edge_id).await {
         Ok(edge) => (StatusCode::OK, Json(edge)).into_response(),
         Err(_) => (StatusCode::NOT_FOUND, "Edge not found").into_response(),
@@ -54,7 +53,6 @@ pub async fn delete_edge(
         Err(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Failed to delete edge").into_response(),
     }
 }
-
 
 /// Handler for fetching all edges for a source node
 pub async fn fetch_edges_by_source(

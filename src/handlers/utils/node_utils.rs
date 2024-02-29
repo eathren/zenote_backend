@@ -1,5 +1,5 @@
-use sqlx::PgPool;
 use crate::models::node::{NewNodeRequest, Node, UpdateNodeRequest};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 pub async fn create_node_db(pool: &PgPool, new_node: NewNodeRequest) -> Result<Node, sqlx::Error> {
@@ -18,18 +18,18 @@ pub async fn create_node_db(pool: &PgPool, new_node: NewNodeRequest) -> Result<N
 }
 
 pub async fn fetch_node_db(pool: &PgPool, node_id: Uuid) -> Result<Node, sqlx::Error> {
-    let node = sqlx::query_as!(
-        Node,
-        "SELECT * FROM nodes WHERE id = $1",
-        node_id,
-    )
-    .fetch_one(pool)
-    .await?;
+    let node = sqlx::query_as!(Node, "SELECT * FROM nodes WHERE id = $1", node_id,)
+        .fetch_one(pool)
+        .await?;
 
     Ok(node)
 }
 
-pub async fn update_node_db(pool: &PgPool, node_id: Uuid, input: UpdateNodeRequest) -> Result<Node, sqlx::Error> {
+pub async fn update_node_db(
+    pool: &PgPool,
+    node_id: Uuid,
+    input: UpdateNodeRequest,
+) -> Result<Node, sqlx::Error> {
     let node = sqlx::query_as!(
         Node,
         r#"
@@ -50,7 +50,7 @@ pub async fn update_node_db(pool: &PgPool, node_id: Uuid, input: UpdateNodeReque
 }
 
 pub async fn fetch_all_nodes_db(pool: &PgPool, graph_id: Uuid) -> Result<Vec<Node>, sqlx::Error> {
-   let nodes =  sqlx::query_as!(
+    let nodes = sqlx::query_as!(
         Node,
         "SELECT * FROM nodes WHERE deleted = false AND graph_id = $1",
         graph_id
@@ -62,12 +62,8 @@ pub async fn fetch_all_nodes_db(pool: &PgPool, graph_id: Uuid) -> Result<Vec<Nod
 }
 
 pub async fn delete_node_db(pool: &PgPool, node_id: Uuid) -> Result<u64, sqlx::Error> {
-    sqlx::query_as!(
-        Node,
-        "DELETE FROM nodes WHERE id = $1",
-        node_id
-    )
-    .execute(pool)
-    .await
-    .map(|result| result.rows_affected())
+    sqlx::query_as!(Node, "DELETE FROM nodes WHERE id = $1", node_id)
+        .execute(pool)
+        .await
+        .map(|result| result.rows_affected())
 }

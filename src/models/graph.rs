@@ -12,10 +12,9 @@ pub struct Graph {
     pub deleted: bool,
     pub owner_id: String,
 }
- 
+
 #[derive(Serialize, Deserialize)]
 pub struct NewGraphRequest {
     pub name: String,
     pub owner_id: String,
 }
-

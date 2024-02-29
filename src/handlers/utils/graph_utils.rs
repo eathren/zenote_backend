@@ -1,5 +1,5 @@
-use sqlx::PgPool;
 use crate::models::graph::{Graph, NewGraphRequest};
+use sqlx::PgPool;
 use uuid::Uuid;
 
 /// Inserts a new graph into the database.
@@ -12,7 +12,7 @@ pub async fn create_graph_db(pool: &PgPool, input: NewGraphRequest) -> Result<Gr
     )
     .fetch_one(pool)
     .await?;
-    
+
     Ok(graph)
 }
 
@@ -25,32 +25,32 @@ pub async fn fetch_graph_db(pool: &PgPool, graph_id: Uuid) -> Result<Graph, sqlx
     )
     .fetch_one(pool)
     .await?;
-    
+
     Ok(graph)
 }
 
 /// Fetches all graphs from the database.
-pub async fn fetch_all_graphs_db(pool: &PgPool, owner_id: String) -> Result<Vec<Graph>, sqlx::Error> {
+pub async fn fetch_all_graphs_db(
+    pool: &PgPool,
+    owner_id: String,
+) -> Result<Vec<Graph>, sqlx::Error> {
     let graphs = sqlx::query_as!(
         Graph,
         "SELECT *  FROM graphs
-        WHERE owner_id =$1 AND deleted = false", 
+        WHERE owner_id =$1 AND deleted = false",
         owner_id
     )
     .fetch_all(pool)
     .await?;
-    
+
     Ok(graphs)
 }
 
 /// Deletes a graph by its ID from the database.
 pub async fn delete_graph_db(pool: &PgPool, graph_id: Uuid) -> Result<u64, sqlx::Error> {
-    let result = sqlx::query!(
-        "DELETE FROM graphs WHERE id = $1",
-        graph_id
-    )
-    .execute(pool)
-    .await?;
-    
+    let result = sqlx::query!("DELETE FROM graphs WHERE id = $1", graph_id)
+        .execute(pool)
+        .await?;
+
     Ok(result.rows_affected())
 }
