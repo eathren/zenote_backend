@@ -5,7 +5,6 @@ use axum::{
 };
 use log::{error, info};
 use sqlx::PgPool;
-use uuid::Uuid;
 use crate::models::user::NewUserRequest;
 use super::utils::user_utils::{create_user_db, delete_user_db, fetch_all_users_db, fetch_user_db}; 
 
@@ -24,7 +23,7 @@ pub async fn create_user(
 
 pub async fn get_user(
     Extension(pool): Extension<PgPool>,
-    Path(user_id): Path<Uuid>,
+    Path(user_id): Path<String>,
 ) -> Response {
     info!("Fetching user: {:?}", user_id);
     match fetch_user_db(&pool, user_id).await {
@@ -39,7 +38,7 @@ pub async fn get_user(
 
 pub async fn delete_user(
     Extension(pool): Extension<PgPool>,
-    Path(user_id): Path<Uuid>,
+    Path(user_id): Path<String>,
 ) -> Response {
     match delete_user_db(&pool, user_id).await {
         Ok(rows) if rows > 0 => StatusCode::OK.into_response(),

@@ -16,6 +16,8 @@ use crate::db::migrate_databases;
 use tower_http::cors::{CorsLayer, AllowOrigin};
 mod models;
 mod utils;
+use tower_http::auth::AsyncRequireAuthorizationLayer;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -34,6 +36,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "http://localhost:3000".parse().unwrap(),
         "https://zenote.net".parse().unwrap(),
     ]);
+
+    // let auth_layer = AsyncRequireAuthorizationLayer::custom(validate_token);
 
     let cors = CorsLayer::new()
     .allow_methods(vec![
@@ -64,8 +68,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ServiceBuilder::new()
             .layer(HandleErrorLayer::new(handle_generic_error)) 
             .timeout(Duration::from_secs(30))
-    )
-    .layer(cors);
+            .layer(cors)
+            // .layer(auth_layer)
+    );
+    
 
     info!("Server started");
 

@@ -1,12 +1,10 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use time::OffsetDateTime;
 
 
 #[derive(Serialize, Deserialize)]
 pub struct User {
-    pub id: Uuid,
-    pub sub: String,
+    pub id: String,
     pub email: String,
     pub date_created: Option<OffsetDateTime>,
     pub date_updated: Option<OffsetDateTime>,

@@ -5,15 +5,15 @@ mod node_handler_tests {
     use crate::{handlers::{tests::common::setup_test_db, utils::{graph_utils::create_graph_db, node_utils::{create_node_db, delete_node_db, fetch_all_nodes_db, fetch_node_db, update_node_db}, user_utils::create_user_db}}, models::node::{NewNodeRequest, UpdateNodeRequest}};
     use crate::models::graph::NewGraphRequest;
 
-    async fn setup_user_and_graph(pool: &PgPool) -> (Uuid, Uuid) {
+    async fn setup_user_and_graph(pool: &PgPool) -> (String, Uuid) {
         let user_email = format!("user_{}@example.com", Uuid::new_v4());
-        let user_sub = Uuid::new_v4().to_string();
+        let user_id = Uuid::new_v4().to_string();
 
-        let user = create_user_db(pool, user_sub, user_email).await.expect("Failed to create user");
+        let user = create_user_db(pool, user_id, user_email).await.expect("Failed to create user");
         
         let new_graph_request = NewGraphRequest {
             name: "Test Graph".to_string(),
-            owner_id: user.id,
+            owner_id: user.id.clone(),
         };
         let graph = create_graph_db(pool, new_graph_request).await.expect("Failed to create graph");
 

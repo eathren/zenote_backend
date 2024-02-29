@@ -10,12 +10,12 @@ pub struct Graph {
     pub date_created: Option<OffsetDateTime>,
     pub date_updated: Option<OffsetDateTime>,
     pub deleted: bool,
-    pub owner_id: Uuid,
+    pub owner_id: String,
 }
-
+ 
 #[derive(Serialize, Deserialize)]
 pub struct NewGraphRequest {
     pub name: String,
-    pub owner_id: Uuid,
+    pub owner_id: String,
 }
 

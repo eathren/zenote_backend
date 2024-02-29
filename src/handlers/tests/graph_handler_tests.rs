@@ -5,13 +5,13 @@ pub mod graph_handler_tests {
     use uuid::Uuid;
     use common::setup_test_db;
 
-    async fn setup_user_and_graph(pool: &sqlx::PgPool) -> (Uuid, Uuid) {
-        let user_sub = Uuid::new_v4().to_string();
+    async fn setup_user_and_graph(pool: &sqlx::PgPool) -> (String, Uuid) {
+        let user_id = Uuid::new_v4().to_string();
         let user_email = format!("user_{}@example.com", Uuid::new_v4());
-        let user = create_user_db(pool, user_sub, user_email).await.expect("Failed to create user");
+        let user = create_user_db(pool, user_id, user_email).await.expect("Failed to create user");
         let graph_request = NewGraphRequest {
             name: "Test Graph".to_string(),
-            owner_id: user.id,
+            owner_id: user.id.clone(),
         };
         let graph = create_graph_db(pool, graph_request).await.expect("Failed to create graph");
         (user.id, graph.id)
