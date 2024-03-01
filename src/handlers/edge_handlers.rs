@@ -24,7 +24,10 @@ pub async fn create_edge(
 }
 
 /// Handler for fetching an edge by ID
-pub async fn fetch_edge(Extension(pool): Extension<PgPool>, Path(edge_id): Path<Uuid>) -> impl IntoResponse {
+pub async fn fetch_edge(
+    Extension(pool): Extension<PgPool>,
+    Path(edge_id): Path<Uuid>,
+) -> impl IntoResponse {
     match fetch_edge_db(&pool, edge_id).await {
         Ok(edge) => (StatusCode::OK, Json(edge)).into_response(),
         Err(_) => (StatusCode::NOT_FOUND, "Edge not found").into_response(),

@@ -1,4 +1,3 @@
-
 use crate::handlers::{
     tests::common,
     utils::user_utils::{create_user_db, delete_user_db, fetch_user_db},

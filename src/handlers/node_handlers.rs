@@ -21,7 +21,10 @@ pub async fn create_node(
     }
 }
 
-pub async fn fetch_node(Extension(pool): Extension<PgPool>, Path(node_id): Path<Uuid>) -> impl IntoResponse {
+pub async fn fetch_node(
+    Extension(pool): Extension<PgPool>,
+    Path(node_id): Path<Uuid>,
+) -> impl IntoResponse {
     match fetch_node_db(&pool, node_id).await {
         Ok(node) => (StatusCode::OK, Json(node)).into_response(),
         Err(_) => (StatusCode::NOT_FOUND, "Node not found").into_response(),

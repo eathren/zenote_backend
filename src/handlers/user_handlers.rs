@@ -22,7 +22,10 @@ pub async fn create_user(
     }
 }
 
-pub async fn get_user(Extension(pool): Extension<PgPool>, Path(user_id): Path<String>) -> impl IntoResponse {
+pub async fn get_user(
+    Extension(pool): Extension<PgPool>,
+    Path(user_id): Path<String>,
+) -> impl IntoResponse {
     info!("Fetching user: {:?}", user_id);
     match fetch_user_db(&pool, user_id).await {
         Ok(user) => (StatusCode::OK, Json(user)).into_response(),

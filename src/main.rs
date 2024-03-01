@@ -52,7 +52,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .nest("/", routes::user_routes())
         .nest("/", routes::graph_routes())
         .nest("/", routes::node_routes())
-        .nest("/", routes::edge_routes());
+        .nest("/", routes::edge_routes())
+        .nest("/", routes::health_routes());
 
     let app = Router::new()
         .nest("/api/v1/", api_v1_routes)
