@@ -8,12 +8,13 @@ use axum::{
 };
 use log::{error, info};
 use sqlx::PgPool;
+use uuid::Uuid;
 
 pub async fn create_user(
     Extension(pool): Extension<PgPool>,
     Json(input): Json<NewUserRequest>,
 ) -> impl IntoResponse {
-    match create_user_db(&pool, input.sub, input.email).await {
+    match create_user_db(&pool, input.user_id, input.email).await {
         Ok(user) => (StatusCode::CREATED, Json(user)).into_response(),
         Err(e) => {
             error!("Failed to create user: {:?}", e);
@@ -24,7 +25,7 @@ pub async fn create_user(
 
 pub async fn get_user(
     Extension(pool): Extension<PgPool>,
-    Path(user_id): Path<String>,
+    Path(user_id): Path<Uuid>,
 ) -> impl IntoResponse {
     info!("Fetching user: {:?}", user_id);
     match fetch_user_db(&pool, user_id).await {
@@ -38,7 +39,7 @@ pub async fn get_user(
 
 pub async fn delete_user(
     Extension(pool): Extension<PgPool>,
-    Path(user_id): Path<String>,
+    Path(user_id): Path<Uuid>,
 ) -> impl IntoResponse {
     match delete_user_db(&pool, user_id).await {
         Ok(rows) if rows > 0 => StatusCode::OK.into_response(),

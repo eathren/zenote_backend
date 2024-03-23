@@ -1,15 +1,14 @@
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
 use uuid::Uuid;
+
+use super::common::CommonFields;
 
 #[derive(Serialize, Deserialize)]
 pub struct Node {
     pub id: Uuid,
     pub name: String,
     pub graph_id: Uuid,
-    pub date_created: Option<OffsetDateTime>,
-    pub date_updated: Option<OffsetDateTime>,
-    pub deleted: bool,
+    pub common: CommonFields
 }
 
 #[derive(Serialize, Deserialize)]

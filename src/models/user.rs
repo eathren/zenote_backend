@@ -1,23 +1,24 @@
 use serde::{Deserialize, Serialize};
-use time::OffsetDateTime;
+use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
+use super::common::CommonFields;
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct User {
-    pub id: String,
+    pub id: Uuid,
+    pub user_id: Uuid,
     pub email: String,
-    pub date_created: Option<OffsetDateTime>,
-    pub date_updated: Option<OffsetDateTime>,
-    pub deleted: bool,
+    pub is_individual: bool,
+    pub common: CommonFields
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct NewUserRequest {
     pub email: String,
-    pub sub: String,
+    pub user_id: Uuid,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct UserUpdateRequest {
     pub email: Option<String>,
-    pub deleted: bool,
 }
