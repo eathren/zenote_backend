@@ -1,3 +1,5 @@
+pub mod organization;
+
 use log::{error, info};
 use sqlx::postgres::PgPool;
 use std::env;

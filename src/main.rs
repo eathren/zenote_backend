@@ -3,7 +3,7 @@ use log::info;
 mod db;
 mod routes;
 use std::{net::SocketAddr, str::FromStr};
-pub mod handlers;
+mod services;
 use axum::{error_handling::HandleErrorLayer, http::HeaderName, Extension, Router};
 use std::time::Duration;
 use tower::ServiceBuilder;
@@ -49,11 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // All current routes declared here
     let api_v1_routes = Router::new()
-        .nest("/", routes::user_routes())
-        .nest("/", routes::graph_routes())
-        .nest("/", routes::node_routes())
-        .nest("/", routes::edge_routes())
-        .nest("/", routes::health_routes());
+        .nest("/", routes::organization_routes());
 
     let app = Router::new()
         .nest("/api/v1/", api_v1_routes)
