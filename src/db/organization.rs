@@ -1,6 +1,7 @@
 use sqlx::PgPool;
 use uuid::Uuid;
 use crate::models::organization::{CreateOrganizationRequest, Organization};
+
 /// Inserts a new organization into the database.
 /// Returns the newly created organization.
 /// If the organization already exists, it will return an error.
@@ -19,21 +20,21 @@ pub async fn create_organization_db(pool: &PgPool, input: CreateOrganizationRequ
 }
 
 /// Fetches an organization by its ID from the database.
-/// Returns the organization.
-/// If the organization does not exist, it will return an error.
-/// If the organization has been successfully fetched, it will return the organization.
-/// If there is an error, it will return the error.
-/// If the organization has been deleted, it will return an error.
+/// Returns the organization if it exists and has not been deleted.
+/// Returns an error if the organization does not exist or has been deleted.
 pub async fn fetch_organization_db(pool: &PgPool, organization_id: Uuid) -> Result<Organization, sqlx::Error> {
     let organization = sqlx::query_as!(
         Organization,
-        "SELECT id, name, date_created, date_updated, deleted, date_deleted FROM organizations WHERE id = $1",
+        "SELECT id, name, date_created, date_updated, deleted, date_deleted FROM organizations WHERE id = $1 AND deleted IS NOT TRUE",
         organization_id
     )
     .fetch_one(pool)
-    .await?;
+    .await;
 
-    Ok(organization)
+    match organization {
+        Ok(org) if org.deleted.unwrap_or(false) => Err(sqlx::Error::RowNotFound),
+        _ => organization,
+    }
 }
 
 /// Updates an organization by its ID in the database.

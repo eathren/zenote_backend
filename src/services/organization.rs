@@ -5,7 +5,6 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use serde::Deserialize;
 use sqlx::PgPool;
 use uuid::Uuid;
 

@@ -49,3 +49,7 @@ pub async fn migrate_databases() -> Result<(), Box<dyn std::error::Error>> {
     info!("Migrations successfully run on both main and test databases.");
     Ok(())
 }
+
+
+#[cfg(test)]
+mod tests;
